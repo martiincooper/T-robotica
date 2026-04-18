@@ -15,7 +15,7 @@ c_v = 0.8    # Roce lineal (N*s/m)
 c_w = 0.15   # Roce rotacional (N*m*s/rad)
 
 dt = 0.05    # Paso de tiempo de integración (s)
-t_array = np.arange(0, 16, dt)  # 16 segundos en total (4 tramos de 4s)
+t_array = np.arange(0, 19, dt)  # 19 s con maniobras mas diferenciadas
 
 # Variables de estado iniciales [x, y, theta, v, omega]
 x, y, theta = 0.0, 0.0, np.pi/2  # Empieza apuntando hacia arriba (eje Y)
@@ -30,22 +30,30 @@ hist_estado = []  # Para mostrar el texto en el video
 # ==========================================
 for t in t_array:
     # Definición de perfiles de Torque (tau_R, tau_L)
-    if t < 4.0:
-        # Tramo 1: Adelante (Aceleración positiva)
-        tau_R, tau_L = 0.02, 0.02
-        estado_txt = "Adelante (tau_R = tau_L > 0)"
-    elif t < 8.0:
-        # Tramo 2: Atrás (Aceleración negativa, frena y luego retrocede)
-        tau_R, tau_L = -0.02, -0.02
-        estado_txt = "Atrás (tau_R = tau_L < 0)"
-    elif t < 12.0:
-        # Tramo 3: Sola rueda (Activa derecha, genera curva asimétrica)
-        tau_R, tau_L = 0.02, 0.00
-        estado_txt = "Sola rueda (tau_R > 0, tau_L = 0)"
+    if t < 2.5:
+        # Tramo 1: Aceleración frontal
+        tau_R, tau_L = 0.03, 0.03
+        estado_txt = "Aceleracion: tau_R = tau_L > 0"
+    elif t < 4.5:
+        # Tramo 2: Planeo inercial sin torque
+        tau_R, tau_L = 0.00, 0.00
+        estado_txt = "Planeo inercial: tau_R = tau_L = 0"
+    elif t < 8.5:
+        # Tramo 3: Sola rueda marcada (curva asimétrica evidente)
+        tau_R, tau_L = 0.05, 0.00
+        estado_txt = "Sola rueda: tau_R > 0, tau_L = 0"
+    elif t < 11.0:
+        # Tramo 4: Frenado para reducir velocidad lineal antes del giro puro
+        tau_R, tau_L = -0.03, -0.03
+        estado_txt = "Frenado: tau_R = tau_L < 0"
+    elif t < 15.5:
+        # Tramo 5: Ruedas contrapuestas fuertes (giro sobre su eje)
+        tau_R, tau_L = 0.03, -0.03
+        estado_txt = "Contrapuestas: tau_R = -tau_L"
     else:
-        # Tramo 4: Contrapuestas (Frena avance y gira sobre su eje)
-        tau_R, tau_L = 0.01, -0.01
-        estado_txt = "Contrapuestas (tau_R = -tau_L)"
+        # Tramo 6: Asentamiento final por disipación
+        tau_R, tau_L = 0.00, 0.00
+        estado_txt = "Asentamiento final por roce"
 
     # Modelo dinámico con fuerzas/torques de tracción y disipación por roce
     F_traccion = (tau_R + tau_L) / r
