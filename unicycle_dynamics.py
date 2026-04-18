@@ -10,6 +10,11 @@ r = 0.05     # Radio de las ruedas (m)
 L = 0.30     # Distancia entre ruedas / Ancho de vía (m)
 I = 0.056    # Momento de inercia alrededor del COM (kg*m^2)
 
+# Parámetros de roce rueda-suelo
+b_w = 0.02         # Roce viscoso equivalente en cada rueda [N*m*s/rad]
+tau_c = 0.008      # Roce tipo Coulomb equivalente en cada rueda [N*m]
+w_eps = 0.2        # Escala para suavizar la función signo (evita discontinuidades)
+
 dt = 0.05    # Paso de tiempo de integración (s)
 t_array = np.arange(0, 16, dt)  # 16 segundos en total (4 tramos de 4s)
 
@@ -20,6 +25,11 @@ v, omega = 0.0, 0.0              # Parte del reposo
 # Listas para guardar el historial
 hist_x, hist_y, hist_theta = [], [], []
 hist_estado = []  # Para mostrar el texto en el video
+
+
+def tau_roce_rueda(w):
+    # Roce total por rueda: componente viscosa + Coulomb suavizada
+    return -b_w * w - tau_c * np.tanh(w / w_eps)
 
 # ==========================================
 # 2. BUCLE DE DINÁMICA (Newton-Euler)
@@ -40,14 +50,24 @@ for t in t_array:
         estado_txt = "Sola rueda (tau_R > 0, tau_L = 0)"
     else:
         # Tramo 4: Contrapuestas (Frena avance y gira sobre su eje)
-        # Aplicamos un pequeño freno al avance para notar el giro
-        v = v * 0.95 
         tau_R, tau_L = 0.01, -0.01
         estado_txt = "Contrapuestas (tau_R = -tau_L)"
+
+    # Velocidades angulares de rueda consistentes con (v, omega)
+    w_R = (v + (L / 2) * omega) / r
+    w_L = (v - (L / 2) * omega) / r
+
+    # Torques de roce del suelo sobre cada rueda
+    tau_fric_R = tau_roce_rueda(w_R)
+    tau_fric_L = tau_roce_rueda(w_L)
+
+    # Torques efectivos aplicados al sistema
+    tau_R_eff = tau_R + tau_fric_R
+    tau_L_eff = tau_L + tau_fric_L
         
     # Ecuaciones Dinámicas (Aceleraciones)
-    v_dot = (tau_R + tau_L) / (m * r)
-    omega_dot = (L * (tau_R - tau_L)) / (2 * I * r)
+    v_dot = (tau_R_eff + tau_L_eff) / (m * r)
+    omega_dot = (L * (tau_R_eff - tau_L_eff)) / (2 * I * r)
     
     # Integración de Euler para Velocidades
     v += v_dot * dt
