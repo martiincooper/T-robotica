@@ -33,7 +33,7 @@ for t in t_array:
     elif t < 8.0:
         # Tramo 2: Atrás (Aceleración negativa, frena y luego retrocede)
         tau_R, tau_L = -0.02, -0.02
-        estado_txt = "Atras (tau_R = tau_L < 0)"
+        estado_txt = "Atrás (tau_R = tau_L < 0)"
     elif t < 12.0:
         # Tramo 3: Sola rueda (Activa derecha, genera curva asimétrica)
         tau_R, tau_L = 0.02, 0.00
