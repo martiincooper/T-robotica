@@ -13,10 +13,10 @@ I = 0.056    # Momento de inercia alrededor del COM (kg*m^2)
 # NUEVOS PARÁMETROS: Coeficientes de roce (fricción viscosa)
 c_v = 0.45   # Coeficiente de roce lineal (N*s/m)
 c_w = 0.08   # Coeficiente de roce rotacional (N*m*s/rad)
-factor_reproduccion = 1.6  # >1 acelera la animación
+factor_reproduccion = 2.2  # >1 acelera la animación
 
 dt = 0.05    # Paso de tiempo de integración (s)
-t_max = 40.0  # Tiempo máximo de simulación para permitir paradas completas
+t_max = 18.0  # Demo breve con cambios visibles
 
 # Variables de estado iniciales [x, y, theta, v, omega]
 x, y, theta = 0.0, 0.0, np.pi/2  # Empieza apuntando hacia arriba (eje Y)
@@ -29,8 +29,8 @@ hist_estado = []
 # ==========================================
 # 2. BUCLE DE DINÁMICA (Newton-Euler con Roce)
 # ==========================================
-v_tol = 0.01      # Umbral para considerar reposo lineal [m/s]
-omega_tol = 0.02  # Umbral para considerar reposo angular [rad/s]
+v_tol = 0.03      # Umbral para considerar reposo lineal [m/s]
+omega_tol = 0.05  # Umbral para considerar reposo angular [rad/s]
 
 # Notación solicitada:
 # - Adelante: tau_R > 0, tau_L > 0, tau_R = tau_L
@@ -39,27 +39,27 @@ omega_tol = 0.02  # Umbral para considerar reposo angular [rad/s]
 # - Ruedas contrapuestas: tau_R = -tau_L
 maneuvers = [
     {
-        "tau_R": 0.05,
-        "tau_L": 0.05,
-        "dur": 4.0,
+        "tau_R": 0.06,
+        "tau_L": 0.06,
+        "dur": 2.0,
         "label": "Adelante: tau_R > 0, tau_L > 0, tau_R = tau_L",
     },
     {
-        "tau_R": -0.05,
-        "tau_L": -0.05,
-        "dur": 4.0,
+        "tau_R": -0.06,
+        "tau_L": -0.06,
+        "dur": 2.0,
         "label": "Atras: tau_R < 0, tau_L < 0, tau_R = tau_L",
     },
     {
-        "tau_R": 0.05,
+        "tau_R": 0.06,
         "tau_L": 0.00,
-        "dur": 4.0,
+        "dur": 2.0,
         "label": "Sola rueda: tau_R > 0, tau_L = 0",
     },
     {
-        "tau_R": 0.03,
-        "tau_L": -0.03,
-        "dur": 4.0,
+        "tau_R": 0.04,
+        "tau_L": -0.04,
+        "dur": 2.0,
         "label": "Ruedas contrapuestas: tau_R = -tau_L",
     },
 ]
